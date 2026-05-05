@@ -12,17 +12,19 @@ import { toast } from "@/hooks/use-toast";
 interface Props {
   power: number;
   onPowerChange: (v: number) => void;
+  onApply?: (v: number) => Promise<void> | void;
   disabled?: boolean;
 }
 
-export const PowerControl = ({ power, onPowerChange, disabled }: Props) => {
+export const PowerControl = ({ power, onPowerChange, onApply, disabled }: Props) => {
   const [applied, setApplied] = useState(false);
   const ton = calcTon(power);
   const toff = calcToff(power);
   const dutyPct = (ton / CYCLE_PERIOD_S) * 100;
 
-  const handleApply = () => {
+  const handleApply = async () => {
     setApplied(true);
+    await onApply?.(power);
     toast({
       title: "Potência aplicada",
       description: `${power.toFixed(0)}% — Ton ${formatSeconds(ton)} / Toff ${formatSeconds(toff)}`,
